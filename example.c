@@ -36,68 +36,41 @@ void send_str(const char *s);
 uint8_t recv_str(char *buf, uint8_t size);
 void parse_and_execute_command(const char *buf, uint8_t num);
 
-#if 0
 // Very simple character echo test
 int main(void)
 {
+	int changed = 0;
+	int port = 'B' - 'A';
+	int pin = '0' - '0';
+	int val;
 	CPU_PRESCALE(0);
 	usb_init();
-	while (1) {
-		int n = usb_serial_getchar();
-		if (n >= 0) usb_serial_putchar(n);
-	}
-}
-
-#else
-
-// Basic command interpreter for controlling port pins
-int main(void)
-{
-	char buf[32];
-	uint8_t n;
-
-	// set for 16 MHz clock, and turn on the LED
-	CPU_PRESCALE(0);
 	LED_CONFIG;
-	LED_ON;
-
-	// initialize the USB, and then wait for the host
-	// to set configuration.  If the Teensy is powered
-	// without a PC connected to the USB port, this 
-	// will wait forever.
-	usb_init();
 	while (!usb_configured()) /* wait */ ;
 	_delay_ms(1000);
 
+	LED_ON;
+
+
+	uint8_t *portload = 0x20 + port * 3;
+
+	*(uint8_t *)(0x21 + port * 3) &= ~(1 << pin);
+
+
 	while (1) {
-		// wait for the user to run their terminal emulator program
-		// which sets DTR to indicate it is ready to receive.
-		while (!(usb_serial_get_control() & USB_SERIAL_DTR)) /* wait */ ;
-
-		// discard anything that was received prior.  Sometimes the
-		// operating system or other software will send a modem
-		// "AT command", which can still be buffered.
-		usb_serial_flush_input();
-
-		// print a nice welcome message
-		send_str(PSTR("\r\nTeensy USB Serial Example, "
-			"Simple Pin Control Shell\r\n\r\n"
-			"Example Commands\r\n"
-			"  B0?   Read Port B, pin 0\r\n"
-			"  C2=0  Write Port C, pin 1 LOW\r\n"
-			"  D6=1  Write Port D, pin 6 HIGH  (D6 is LED pin)\r\n\r\n"));
-
-		// and then listen for commands and process them
-		while (1) {
-			send_str(PSTR("> "));
-			n = recv_str(buf, sizeof(buf));
-			if (n == 255) break;
-			send_str(PSTR("\r\n"));
-			parse_and_execute_command(buf, n);
+		val = *portload & (1 << pin);
+//		usb_serial_putchar(val + '0');
+		if ((val == 1)  && (changed == 0)) {
+			changed = 1;
+			usb_serial_putchar(val ? '1' : '0');
+			LED_ON;
+		} else if ((val == 0)  && (changed == 1)) {
+			changed = 0;
+			usb_serial_putchar(val ? '1' : '0');
+			LED_OFF;
 		}
 	}
 }
-#endif
 
 // Send a string to the USB serial port.  The string must be in
 // flash memory, using PSTR
