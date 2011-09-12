@@ -41,7 +41,6 @@ int main(void)
 	int changed = 0, val;
 	int port = 'B' - 'A';
 	int pin = 1 << ('0' - '0');
-	int latency = 0;
 
 	CPU_PRESCALE(0x00); // 16 MHz
 	usb_init();
@@ -76,10 +75,7 @@ int main(void)
 
 //			usb_serial_putchar(count > 16667 ? '>' : '<');
 			send_int(count);
-			usb_serial_putchar(' ');
-			send_int(latency);
 			usb_serial_putchar('\n');
-			latency = TCNT1;
 		} else if ((val == 1)  && (changed == 0)) {
 			/* leading edge of pulse.
 			 */
