@@ -4,14 +4,16 @@
 
 #include <unistd.h>
 #include <stdio.h>
+#include <string.h>
 #include <fcntl.h>
 
-#define QUEUE 100
+#define QUEUE 60
 #define WIDTH 40
 
 int main(int *argc, char **argv)
 {
 	char line[WIDTH + 10];
+	char blankline[] = "                    |                    ";
 	double bottom = 1000000/59.9;
 	double top = 1000000/60.1;
 	double center = 1000000/60;
@@ -20,9 +22,11 @@ int main(int *argc, char **argv)
 	int qpos = 0;
 	int fd = open("/dev/ttyACM0", O_RDONLY);
 
+	strcpy(&line, &blankline);
+
+
 	while (1) {
 		double current, average;
-		char line[] = "                    |                    ";
 		char inlin[20];
 		int position, pos_avg, i;
 		int len = read(fd, &inlin, 20);
@@ -52,14 +56,16 @@ int main(int *argc, char **argv)
 			line[position] = '.';
 		}
 
-		if (pos_avg > WIDTH) {
-			line[WIDTH] = '_';
-		} else if (pos_avg < 0) {
-			line[0] = '_';
-		} else {
-			line[pos_avg] = '*';
-		}
-		if (counter % 15 == 0)
+		if (counter % 6 == 0) {
+			if (pos_avg > WIDTH) {
+				line[WIDTH] = '_';
+			} else if (pos_avg < 0) {
+				line[0] = '_';
+			} else {
+				line[pos_avg] = '#';
+			}
 			printf("[%s] %f\n", line, 1/(average/1000000));
+			strcpy(&line, &blankline);
+		}
 	}
 }
