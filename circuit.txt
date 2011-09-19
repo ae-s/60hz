@@ -10,12 +10,20 @@
                        |   |   +--------------------------+    |
                        |   |   |   |     +--|(+)\    |    |    \
            Voltage     |   |   |   |        |    >---+   /     / Pull-up resistor
-           Divider     |   |   |   +--------|(-)/       |      \     ~10K
+           Divider     |   |   |   +--------|(-)/       |      \     ~100K
                        |   |   |                         \     /
-                       |   |   |   Comparator (NS M8830)  |    \
+                       |   |   | Dual Comparator (LM 393) |    \
                        |   |   +--------------------------+    |
                        |   |      |__|  |__|  |__|  |__|       |
 -24V ac  o-+-\/\/\/\/--+   |                         |         |
-           |    1K         |                         +---------+----o  Digital +5V
+           |    1K         |                         +---------+----o  Vcc
            |               |
-           +---------------+----------------------------------------o  Digital ground
+           +---------------+----------------------------------------o  Ground
+
+The 120Vac <-> 24Vac transformer could be replaced by a larger voltage
+divider, but that would couple the USB ground line to one pole of the
+AC line.
+
+Comparator is LM 393 or equivalent, used as a zero-crossing detector.
+
+Digital output is connected to pin B0 of the Teensy.
