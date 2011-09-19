@@ -7,16 +7,17 @@
 #include <string.h>
 #include <fcntl.h>
 
-#define QUEUE 60
+#define QUEUE 3600
 #define WIDTH 40
+#define SCALE 1000000
 
 int main(int *argc, char **argv)
 {
 	char line[WIDTH + 10];
 	char blankline[] = "                    |                    ";
-	double bottom = 1000000/59.9;
-	double top = 1000000/60.1;
-	double center = 1000000/60;
+	double bottom = SCALE/59.8;
+	double top = SCALE/60.2;
+	double center = SCALE/60;
 	double queue[QUEUE];
 	int counter;
 	int qpos = 0;
@@ -29,7 +30,7 @@ int main(int *argc, char **argv)
 		double current, average;
 		char inlin[20];
 		int position, pos_avg, i;
-		int len = read(fd, &inlin, 20);
+		int len = read(fd, &inlin, 6);
 		if (len == 0) {
 			puts("Fucked\n");
 			continue;
@@ -56,7 +57,7 @@ int main(int *argc, char **argv)
 			line[position] = '.';
 		}
 
-		if (counter % 6 == 0) {
+		if (counter % 60 == 0) {
 			if (pos_avg > WIDTH) {
 				line[WIDTH] = '_';
 			} else if (pos_avg < 0) {
@@ -64,6 +65,7 @@ int main(int *argc, char **argv)
 			} else {
 				line[pos_avg] = '#';
 			}
+			line[20] = '|';
 			printf("[%s] %f\n", line, 1/(average/1000000));
 			strcpy(&line, &blankline);
 		}
