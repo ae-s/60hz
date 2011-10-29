@@ -36,18 +36,16 @@ int main(int *argc, char **argv)
 	int fd = open("/dev/ttyACM0", O_RDONLY);
 
 	long int count_total = 0;	// total overflows so far ever
-	struct timespec initial;	// initial timestamp
+	struct timeval initial;	// initial timestamp
 
 	signed long long int initial_nsec;
 	signed long int initial_msec;
 
 	strcpy(&line, &blankline);
 
-	clock_gettime(CLOCK_REALTIME, &initial);
+	gettimeofday(&initial, NULL);
 
-	initial_nsec = initial.tv_nsec;
-
-	initial_msec = (initial.tv_sec * 1000) + (initial.tv_nsec / (1000 * 1000));
+	initial_msec = (initial.tv_sec * 1000) + (initial.tv_usec / 1000);
 
 	while (1) {
 		double current, average;
@@ -55,7 +53,7 @@ int main(int *argc, char **argv)
 		int position, pos_avg, i;
 		int len;
 
-		struct timespec current_time;
+		struct timeval current_time;
 		signed long long int cur_nsec;
 		signed long int cur_msec;
 
@@ -66,9 +64,8 @@ int main(int *argc, char **argv)
 			puts("Fucked\n");
 			continue;
 		}
-		clock_gettime(CLOCK_REALTIME, &current_time);
-		cur_nsec = (current_time.tv_nsec) + ((current_time.tv_sec - initial.tv_sec) * 1000 * 1000 * 1000);
-		cur_msec = (current_time.tv_nsec / (1000 * 1000)) + ((current_time.tv_sec) * 1000);
+		gettimeofday(&current_time, NULL);
+		cur_msec = (current_time.tv_usec / 1000) + (current_time.tv_sec * 1000);
 
 		count_total++;
 
