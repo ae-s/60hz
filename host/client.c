@@ -7,8 +7,13 @@
 #include <string.h>
 #include <fcntl.h>
 
+// window for frequency averaging, in cycles
 #define QUEUE 3600
+// window for reporting, in cycles
+#define REPORT_FREQ 60
+// width of the bargraph
 #define WIDTH 40
+// timer cycles per second
 #define SCALE 1000000
 
 int main(int *argc, char **argv)
@@ -57,7 +62,7 @@ int main(int *argc, char **argv)
 			line[position] = '.';
 		}
 
-		if (counter % 60 == 0) {
+		if (counter % REPORT_FREQ == 0) {
 			if (pos_avg > WIDTH) {
 				line[WIDTH] = '_';
 			} else if (pos_avg < 0) {

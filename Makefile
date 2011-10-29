@@ -41,7 +41,7 @@
 
 
 # Target file name (without extension).
-TARGET = example
+TARGET = calibrator
 
 
 # List C source files here. (C dependencies are automatically generated.)
@@ -63,7 +63,7 @@ MCU = atmega32u4        # Teensy 2.0
 #   so your program will run at the correct speed.  You should also set this
 #   variable to same clock speed.  The _delay_ms() macro uses this, and many
 #   examples use this variable to calculate timings.  Do not add a "UL" here.
-F_CPU = 16000000
+F_CPU = 1000000
 
 
 # Output format. (can be srec, ihex, binary)
@@ -443,7 +443,8 @@ gccversion :
 
 # Program the device.  
 program: $(TARGET).hex $(TARGET).eep
-	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) $(AVRDUDE_WRITE_EEPROM)
+#	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) $(AVRDUDE_WRITE_EEPROM)
+	teensy_loader_cli -mmcu=$(MCU) -w -v $(TARGET).hex
 
 
 # Generate avr-gdb config/init file which does the following:
